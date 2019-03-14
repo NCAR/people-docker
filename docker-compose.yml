@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  web:
+    image: ${PEOPLE_SEARCH_IMAGE:-006131000878.dkr.ecr.us-east-1.amazonaws.com/people-search}:${PEOPLE_SEARCH_TAG:-latest}
+    ports:
+    - ${PEOPLE_SEARCH_PORT:-9080}:8080
+    volumes:
+    - ${SECRETS_DIR:-./secrets}:/run/secrets:ro
+    networks:
+      - frontend
+      - db
+
+  db:
+    image: ${PEOPLE_DB_IMAGE:-006131000878.dkr.ecr.us-east-1.amazonaws.com/people-db}:${PEOPLE_DB_TAG:-latest}
+    ports:
+    - 3306
+    volumes:
+    - ${SECRETS_DIR:-./secrets}:/run/secrets:ro
+    networks:
+      - db
+
+networks:
+  frontend:
+    driver: bridge
+  db:
+    driver: bridge
+
+      
