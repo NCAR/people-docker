@@ -12,7 +12,7 @@ services:
       - db
 
   db:
-    image: ${PEOPLE_DB_IMAGE:-006131000878.dkr.ecr.us-east-1.amazonaws.com/people-db}:${PEOPLE_DB_TAG:-latest}
+    image: ${PEOPLE_DB_IMAGE:-536333801959.dkr.ecr.us-east-2.amazonaws.com/people-db}:${PEOPLE_DB_TAG:-latest}
     ports:
     - 3306
     volumes:

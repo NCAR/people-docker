@@ -1,0 +1,77 @@
+#!/bin/sh
+PROG=docker-login.sh
+DESC="Log in to AWS ECR to allow Docker pulls"
+USAGE1="$PROG"
+USAGE2="$PROG -h|--help"
+
+SCRIPTDIR=`cd \`dirname $0\`; pwd`
+AWS_REGION="${AWS_REGION:-us-east-1}"
+export PATH
+AWS_CLI_IMAGE=ncar/aws-cli:latest
+
+HELP_TEXT="
+NAME
+    ${PROG} - ${DESC}
+
+SYNOPSIS
+    ${USAGE1}
+    ${USAGE2}
+
+DESRIPTION
+    This script is a wrapper for \"docker login\", which is needed when pulling
+    Docker images from registries other than dockerhub.
+
+    Specifically, it logs in to AWS ECR, region ${AWS_REGION}.
+
+    It uses the \"aws ecr get-login\" command, which is part of the AWS CLI.
+    If the AWS CLI is not installed locally, the ${AWS_CLI_IMAGE} docker
+    image is used.
+
+FILES
+    \${HOME}/.aws/
+        If present, a directory containing configuration and credentials files
+        for the AWS CLI. If the aws-cli docker image is used, this is mounted
+        into the container.
+
+ENVIRONMENT
+    AWS_ACCESS_KEY_ID
+        An AWS access key. If the aws-cli docker image is used, this is added
+        to the container environment if it is set.
+
+    AWS_SECRET_ACCESS_KEY
+        The secret key for the AWS access key. If the aws-cli docker image is
+        used, this is added to the container environment if it is set.
+
+    AWS_DEFAULT_PROFILE
+        The name of the default AWS profile to use. If the aws-cli docker
+        image is used, this is added to the container environment if it is set.
+"
+
+if [ ! -f $HOME/.aws/credentials ] ; then
+    for var in AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY ; do
+        eval val="\"\$${var}\""
+        if [ ":${val}" = ":" ] ; then
+            echo "${PROG}: environment variable $var must be defined" >&2
+        fi
+    done
+fi
+type aws >/dev/null 2>&1
+if [ $? = 0 ] ; then
+    set aws
+else
+    echo "Warning: AWS CLI not installed - using ${AWS_CLI_IMAGE} docker image..."
+    set docker run --rm
+    if [ -d $HOME/.aws ] ; then
+        set "$@" --volume=$HOME/.aws:/root/.aws
+    fi
+    for var in AWS_DEFAULT_PROFILE AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY ; do
+        eval val="\"\$${var}\""
+        if [ ":${val}" != ":" ] ; then
+            set "$@" -e "${var}=${val}"
+        fi
+    done
+    set "$@" "${AWS_CLI_IMAGE}"
+fi
+set "$@" ecr get-login --no-include-email
+login_cmd=`eval "$@" || echo false`
+eval ${login_cmd}
