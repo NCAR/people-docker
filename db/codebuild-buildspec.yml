@@ -3,69 +3,21 @@ version: 0.2
 run-as: root
 
 env:
-  variables:
-    key: "value"
-    key: "value"
   parameter-store:
-    MYSQL_ROOT_PASSWORD: "value"
-    MYSQL_PASSWORD: "value"
-    GITHUB_TOKEN: "value"
+    MYSQL_ROOT_PASSWORD: "PeopleDB-prod-backup-image_MYSQL_ROOT_PASSWORD"
+    MYSQL_PASSWORD: "PeopleDB-prod-backup-image_MYSQL_PASSWORD"
 
 phases:
-  install:
-    run-as: root
-    commands:
-      - command
-      - command
-    finally:
-      - command
-      - command
   pre_build:
-    run-as: root
     commands:
-      - command
-      - command
-    finally:
-      - command
-      - command
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - $(aws ecr get-login --region us-east-1 --no-include-email)
   build:
-    run-as: root
     commands:
       - command
       - command
     finally:
       - command
       - command
-  post_build:
-    run-as: root
-    commands:
-      - command
-      - command
-    finally:
-      - command
-      - command
-artifacts:
-  files:
-    - location
-    - location
-  name: artifact-name
-  discard-paths: yes
-  base-directory: location
-  secondary-artifacts:
-    artifactIdentifier:
-      files:
-        - location
-        - location
-      name: secondary-artifact-name
-      discard-paths: yes
-      base-directory: location
-    artifactIdentifier:
-      files:
-        - location
-        - location
-      discard-paths: yes
-      base-directory: location
-cache:
-  paths:
-    - path
-    - path
+
