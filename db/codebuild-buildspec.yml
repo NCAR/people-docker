@@ -17,9 +17,8 @@ phases:
       - $(aws ecr get-login --region us-east-1 --no-include-email)
   build:
     commands:
+      - ls -l . db
       - aws s3 cp s3://cisl-aws-hcm-people-sql/people.sql PEOPLEDB.sql
       - db/build.sh <PEOPLEDB.sql
-  post_build:
-    commands:
       - db/tag-push.sh
 
