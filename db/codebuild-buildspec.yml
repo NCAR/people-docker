@@ -3,9 +3,11 @@ version: 0.2
 run-as: root
 
 env:
+  variables:
+    DOCKER_REGISTRY: "536333801959.dkr.ecr.us-east-1.amazonaws.com"
   parameter-store:
-    MYSQL_ROOT_PASSWORD: "PeopleDB-prod-backup-image_MYSQL_ROOT_PASSWORD"
-    MYSQL_PASSWORD: "PeopleDB-prod-backup-image_MYSQL_PASSWORD"
+    MYSQL_ROOT_PASSWORD: "/PeopleDB-prod-backup-image/MYSQL_ROOT_PASSWORD"
+    MYSQL_PASSWORD: "/PeopleDB-prod-backup-image/MYSQL_PASSWORD"
 
 phases:
   pre_build:
@@ -15,9 +17,9 @@ phases:
       - $(aws ecr get-login --region us-east-1 --no-include-email)
   build:
     commands:
-      - command
-      - command
-    finally:
-      - command
-      - command
+      - aws s3 cp s3://cisl-aws-hcm-people-sql/people.sql PEOPLEDB.sql
+      - db/build.sh <PEOPLEDB.sql
+  post-build:
+    commands:
+      - db/tag-push.sh
 

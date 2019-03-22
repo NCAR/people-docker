@@ -5,7 +5,10 @@ SECRETS_FILE=${SECRETS_DIR}/pdb.rc
 
 case $1 in
     version)
-        versions.sh docker-entrypoint-initdb.d/PEOPLE-prod.sql
+        echo "dump_mysqld  ${DUMP_SERVER_VERSION}"
+        echo "dump_date    ${DUMP_DATE}"
+        echo "mysqld      " `mysqld --version | sed 's/.* Ver \([^ ]*\).*/\1/'`
+        echo "mysql       " `mysql --version | sed 's/.* Ver \([^ ]*\).*/\1/'`
         exit 0 ;;
     mysqld)
         : ;;
