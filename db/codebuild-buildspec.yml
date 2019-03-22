@@ -19,7 +19,7 @@ phases:
     commands:
       - aws s3 cp s3://cisl-aws-hcm-people-sql/people.sql PEOPLEDB.sql
       - db/build.sh <PEOPLEDB.sql
-  post-build:
+  post_build:
     commands:
       - db/tag-push.sh
 
