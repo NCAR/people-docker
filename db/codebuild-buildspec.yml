@@ -18,7 +18,6 @@ phases:
   build:
     commands:
       - chmod +x db/*.sh
-      - ls -l . db
       - aws s3 cp s3://cisl-aws-hcm-people-sql/people.sql PEOPLEDB.sql
       - db/build.sh <PEOPLEDB.sql
       - db/tag-push.sh
