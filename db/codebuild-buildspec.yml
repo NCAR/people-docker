@@ -17,6 +17,7 @@ phases:
       - $(aws ecr get-login --region us-east-1 --no-include-email)
   build:
     commands:
+      - chmod +x db/*.sh
       - ls -l . db
       - aws s3 cp s3://cisl-aws-hcm-people-sql/people.sql PEOPLEDB.sql
       - db/build.sh <PEOPLEDB.sql
