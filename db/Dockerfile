@@ -31,7 +31,7 @@ ENTRYPOINT ["entrypoint.sh"]
 HEALTHCHECK --interval=20s --timeout=10s --retries=3 CMD healthcheck.sh
 
 EXPOSE 3306
-VOLUME /var/lib/mysql
+VOLUME /run/secrets /var/lib/mysql
 
 CMD [ "mysqld" ]
 

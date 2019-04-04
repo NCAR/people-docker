@@ -33,6 +33,10 @@ FILES
         for the AWS CLI. If the aws-cli docker image is used, this is mounted
         into the container.
 
+    ./.env
+        If present, the file will be sourced and any variable definitions will be
+        exported.
+
 ENVIRONMENT
     AWS_ACCESS_KEY_ID
         An AWS access key. If the aws-cli docker image is used, this is added
@@ -46,7 +50,6 @@ ENVIRONMENT
         The name of the default AWS profile to use. If the aws-cli docker
         image is used, this is added to the container environment if it is set.
 "
-
 if [ ! -f $HOME/.aws/credentials ] ; then
     for var in AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY ; do
         eval val="\"\$${var}\""
@@ -55,23 +58,19 @@ if [ ! -f $HOME/.aws/credentials ] ; then
         fi
     done
 fi
-type aws >/dev/null 2>&1
-if [ $? = 0 ] ; then
-    set aws
-else
-    echo "Warning: AWS CLI not installed - using ${AWS_CLI_IMAGE} docker image..."
-    set docker run --rm
-    if [ -d $HOME/.aws ] ; then
-        set "$@" --volume=$HOME/.aws:/root/.aws
-    fi
-    for var in AWS_DEFAULT_PROFILE AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY ; do
-        eval val="\"\$${var}\""
-        if [ ":${val}" != ":" ] ; then
-            set "$@" -e "${var}=${val}"
-        fi
-    done
-    set "$@" "${AWS_CLI_IMAGE}"
+
+if [ -f ./.env ] ; then
+    . ./.env
+    vars=`sed -n -e 's/^\([A-Za-z_][A-Za-z_0-9]*\)=.*/\1/p' ./.env`
+    export ${vars}
 fi
-set "$@" ecr get-login --no-include-email
-login_cmd=`eval "$@" || echo false`
-eval ${login_cmd}
+type aws >/dev/null 2>&1
+if [ $? != 0 ] ; then
+    if [ ! -f ./aws-bin/aws ] ; then
+        echo "Warning: AWS CLI not installed - using ${AWS_CLI_IMAGE} docker image..."
+        docker run --rm ${AWS_CLI_IMAGE} --install-rc=./.aws-bin | sh
+    fi
+    PATH=./aws-bin:$PATH
+    export PATH
+fi
+eval `aws ecr get-login --no-include-email || echo false`

@@ -1,7 +1,8 @@
 #!/bin/bash
 
 SECRETS_DIR="${SECRETS_DIR:-/run/secrets}"
-SECRETS_FILE=${SECRETS_DIR}/pdb.rc
+SECRETS_FILES="
+ pdb.env"
 
 case $1 in
     version)
@@ -17,21 +18,33 @@ case $1 in
         exit 1 ;;
 esac
 
-if [ -f "${SECRETS_FILE}" ] ; then
-    . "${SECRETS_FILE}"
-    export PDB_LOGIN PDB_PASSWORD PDB_HOST PDB_PORT
-fi
-echo "${PDB_LOGIN}" >/tmp/mysql_user.txt
+# Set environment variables for secrets from files if files are there. Do not allow interpolation.
+TMPFILE=/tmp/secrets
+trap "rm -f ${TMPFILE} ; exit 1" 1 2 13 15
+for file in ${SECRETS_FILES} ; do
+    rcfile="${SECRETS_DIR}/${file}"
+    if [ -f "${rcfile}" ] ; then
+        echo "Reading ${rcfile}"
+        cat "${rcfile}"
+    fi
+done | grep '^ *[a-zA-Z][a-zA-Z0-9_]*=.*' > ${TMPFILE}
+while read line ; do
+    var=`expr "${line}" : '\([^=]*\)=.*'`
+    val=`expr "${line}" : '[^=]*=\(.*\)'`
+    eval "${var}=\"${val}\""
+    export $var
+done <$TMPFILE
+rm -f ${TMPFILE}
+
+read mysqluser </mysql_user.txt
 echo "${PDB_PASSWORD}" | sha256sum >/tmp/mysql_password.sha256
-cmp /mysql_user.txt /tmp/mysql_user.txt
-if [ $? != 0 ] ; then
-    echo "\$PDB_LOGIN does not match database user in image" >&2
-    exit 1
+
+if [ ":$mysqluser" != ":${PDB_LOGIN}" ] ; then
+    echo "WARNING: \${PDB_LOGIN} (\"${PDB_LOGIN}\") does not match database user in image (\"${mysqluser}\")" >&2
 fi
 cmp /mysql_password.sha256 /tmp/mysql_password.sha256
 if [ $? != 0 ] ; then
-    echo "\$PDB_PASSWORD does not match database user password in image" >&2
-    exit 1
+    echo "WARNING: \${PDB_PASSWORD} does not match database user password in image" >&2
 fi
 
 if [ ! -f /var/lib/mysql/ibdata1 ] ; then

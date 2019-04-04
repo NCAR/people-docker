@@ -1,21 +1,20 @@
 # People-Docker
 
-This repo contains tools/configuration to build a Docker container that runs
-a MySQL server instance with data from a PeopleDB production backup. It also
-contains a docker-compose.yml file for running the people-search web
-application together with such a PeopleDB MySQL container.
+This repo contains tools/configuration to build a Docker image that contains
+a MySQL server instance with data from a PeopleDB backup file. It also
+contains a docker-compose.yml file for running the people-search and
+people-sync web applications together with one of these PeopleDB MySQL images.
 
-The repo includes a CircleCI configuration for running nightly jobs to
-create new database containers, which are stored in an Amazon Web Services'
-Elastic Container Registry (AWS ECR) repository. The docker-compose
-configuration automatically retrieves the latest database container image from
-this repository (see **Running docker-compose**).
+The repo includes a CodeBuild *buildspec* file for creating new database containers
+and storing them in an Amazon Web Services' Elastic Container Registry (AWS ECR)
+repository. The docker-compose configuration automatically retrieves the latest database
+container image from this repository (see **Running docker-compose**).
 
-The people-search web application container is also stored in an AWS ECR
+The people-search and people-sync Docker images are also stored in an AWS ECR
 repository, which is also used by the `docker-compose` configuration. The
-`NCAR/people-search` GitHub repo has its own CircleCI configuration, which is
-used to automatically build and push a new Docker container whenever a new
-version of people-search is released.
+`NCAR/people-search` and `NCAR/people-sync` GitHub repos have their own CircleCI
+configurations, which are used to automatically build and push new Docker images
+whenever new version of people-search and people-sync are released.
 
 ### AWS ECR
 
@@ -58,37 +57,9 @@ directory as the `docker-compose.yml` file.
 #### Secrets
 
 The `SECRETS_DIR` environment variable identifies a directory that must contain the secrets used
-by the webapp and database (default=`./secrets`). Specifically, you need to set up a `pdb.rc` file
-and a `people-search.rc` file in this directory and define the following variables as appropriate:
+by the webapps and the database (default=`./secrets`). Specifically, you need to set up a `pdb.env` file,
+and various `people*.env` files in this directory. The variables you should define are documented in the
+[NCAR/people-search README](https://github.com/NCAR/people-search/blob/master/README.md)
+and [NCAR/people-sync README](https://github.com/NCAR/people-sync/blob/master/README.md)
+file in the `/run/secrets` sections.
 
-Variable|File|Description
---------|----|-----------
-HR_EXPORT_ENDPOINT|people-search.rc|HR export endpoint
-HR_EXPORT_PASSWORD|people-search.rc|HR export password
-PDB_HOST|pdb.rc|Name of the database host (should be `db`)
-PDB_PORT|pdb.rc|Network port for database server (should be 3306)
-PDB_ROOT_PASSWORD|pdb.rc|Database password for MySQL root user
-SAM_HOST|people-search.rc|SAM host
-SAM_LOGIN|people-search.rc|SAM login name
-SAM_PASSWORD|people-search.rc|SAM password
-TICKET_EMAIL|people-search.rc|Email destination address when creating tickets
-TICKET_SENDER_EMAIL|people-search.rc|Email sender address when creating tickets
-UCAR_AUTH_HOST|people-search.rc|UCAR auth host:port (should be nauth.api.ucar.edu:443)
-UCAR_AUTH_LOGIN|people-search.rc|UCAR auth login name
-UCAR_AUTH_PASSWORD|people-search.rc|UCAR auth password
-UCAS_EMAIL|people-search.rc|Email address for requesting UCAS account
-TOMCAT_ROLE_HR_PASSWORD|people-search.rc|Tomcat user role for hr api
-TOMCAT_ROLE_ADMIN_PASSWORD|people-search.rc|Tomcat user role for admin api
-TOMCAT_ROLE_PEOPLESYNC_PASSWORD|people-search.rc|Tomcat user role for peoplesync api
-TOMCAT_ROLE_SEC_PASSWORD|people-search.rc|Tomcat user role for sec api
-TOMCAT_ROLE_EMAIL_PASSWORD|people-search.rc|Tomcat user role for email api
-TOMCAT_ROLE_SAM_PASSWORD|people-search.rc|Tomcat user role for sam api
-TOMCAT_ROLE_FANDA_PASSWORD|people-search.rc|Tomcat user role for fanda api
-TOMCAT_ROLE_APIPEOPLE*xx*_PASSWORD|people-search.rc|Tomcat user role for admin user *xx*
-
-Note that not all variables need to be defined if you are not using all people-search features.
-
-#### Container Image Tags
-
-By default, the `docker-compose` configuration will use Docker images tagged with `latest`. The
-MySQL images for PeopleDB are also tagged 
