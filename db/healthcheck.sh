@@ -1,5 +1,5 @@
 #!/bin/bash
-MYSQL_SH=/usr/local/bin/mysql.sh
+MYSQL_SH=${MYSQL_SH:-/usr/local/bin/mysql.sh}
 if [ ":$1" != ":-v" ] ; then
     exec 2>/dev/null
 fi
