@@ -1,6 +1,7 @@
 #!/bin/bash
 SECRETS_DIR="${SECRETS_DIR:-/run/secrets}"
-SECRETS_FILES="${SECRETS_DIR}/pdb.env"
+SECRETS_FILES="
+  pdb.env"
 MYSQL=${MYSQL:-/usr/bin/mysql}
 
 # Set environment variables for secrets from files if files are there. Do not allow interpolation.

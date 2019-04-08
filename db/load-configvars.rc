@@ -1,0 +1,61 @@
+:
+# load-configvars.rc
+#
+# This is a "sourceable" file that will populate the environment using
+# defaults from ./configvars.env and final values from /run/secrets/*.env
+#
+# Supported variables MUST appear in configvars.env; any definitions of
+# variables from /run/secrets that are not given in configvars.env will be
+# ignored.
+#
+# No quote procesing or interpolation is done on *.env files!
+#
+
+SECRETS_DIR="${SECRETS_DIR:-/run/secrets}"
+ENVVARS_CACHE=/tmp/envvars_cache.rc
+if [ -f ${ENVVARS_CACHE} ] ; then
+    . ${ENVVARS_CACHE}
+elif [ -f ./configvars.env ] ; then
+    envvars=
+    echo "# Defaults:" >${ENVVARS_CACHE}
+    while read line ; do
+        var=`expr "${line}" : ' *\([a-zA-Z][a-zA-Z0-9_]*\)=.*'`
+        if [ ":${var}" != ":" ] ; then
+            envvars="${envvars} ${var}"
+            val=`expr "${line}" : '[^=]*=\(.*\)'`
+            escval=`echo "${val}" | sed -e "s/'/'\\\\\\''/g"`
+            echo "${var}='${escval}'"
+        fi
+    done < ./configvars.env >>${ENVVARS_CACHE}
+
+    # Build a regex that will filter out anything but known variable
+    # definitions from the files in $SECRETS_DIR
+    var_regex=`echo "${envvars}" | sed -e 's/.*/(&)/' | tr '\n' '|' | sed -e 's/\(.*\)\|$/^ *(\1)=.*/'`
+
+    for rcfile in ${SECRETS_DIR}/.env ${SECRETS_DIR}/*.env ; do
+        if [ -f "${rcfile}" ] ; then
+            echo "# ${rcfile}:"
+            egrep "$var_regex" "${rcfile}" \
+            | while read line ; do
+                var=`expr "${line}" : '\([^=]*\)=.*'`
+                val=`expr "${line}" : '[^=]*=\(.*\)'`
+                escval=`echo "${val}" | sed -e "s/'/'\\\\\\''/g"`
+                echo "${var}='${escval}'"
+            done
+        fi
+    done >>${ENVVARS_CACHE}
+
+    echo >>${ENVVARS_CACHE}
+    echo export ${envvars} >>${ENVVARS_CACHE}
+
+    . ${ENVVARS_CACHE}
+
+    for var in ${envvars} ; do
+        eval val="\"\$${var}\""
+        if [ ":${val}" = ":" ] ; then
+            echo "Note: environment variable \"${var}\" is empty" >&2
+        fi
+    done
+else
+    echo "ERROR: no configvars.env file!" >&2
+fi

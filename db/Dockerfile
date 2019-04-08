@@ -19,6 +19,7 @@ LABEL dump_server_version=${DUMP_SERVER_VERSION}
 COPY entrypoint.sh /usr/local/bin/
 COPY mysql.sh healthcheck.sh /usr/local/bin/
 COPY mysqld-init.sh /usr/local/bin/
+COPY configvars.env /
 
 COPY PEOPLEDB.sql docker-entrypoint-initdb.d/
 
@@ -31,7 +32,7 @@ ENTRYPOINT ["entrypoint.sh"]
 HEALTHCHECK --interval=20s --timeout=10s --retries=3 CMD healthcheck.sh
 
 EXPOSE 3306
-VOLUME /run/secrets /var/lib/mysql
+VOLUME /run/secrets /var/lib/mysql /var/run/mysqld
 
 CMD [ "mysqld" ]
 

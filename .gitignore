@@ -3,8 +3,8 @@
 **/#*#
 **/*~
 **/*.swp
+**/.*history
 /.idea/
-
 /.env
 /secrets/*
 /logs/*

@@ -1,23 +1,18 @@
 version: '3'
 
+# By default, this compose file will use database, webapp, and synchronizer
+# images from AWS ECR, and will bind-mount the docker-compose directory
+# as /run/secrets in all containers. However, the docker image names, image tags, and
+# the directory to be bind-mounted as /run/secrets can all be overridden using
+# environment variables (which can be set in the .env file).
+#
 services:
-  web:
-    image: ${PEOPLE_SEARCH_IMAGE:-536333801959.dkr.ecr.us-east-1.amazonaws.com/people-search}:${PEOPLE_SEARCH_TAG:-latest}
-    ports:
-      - 9080:8080
-      - 9443:8443
-    volumes:
-      - ${SECRETS_DIR:-./secrets}:/run/secrets:ro
-    networks:
-      - frontend
-      - db
-
   db:
     image: ${PEOPLE_DB_IMAGE:-536333801959.dkr.ecr.us-east-1.amazonaws.com/people-db}:${PEOPLE_DB_TAG:-latest}
     ports:
       - 3306
     volumes:
-      - ${SECRETS_DIR:-./secrets}:/run/secrets:ro
+      - ${SECRETS_DIR:-.}:/run/secrets:ro
     networks:
       - db
 
@@ -27,7 +22,18 @@ services:
       - 9081:8080
       - 9444:8443
     volumes:
-      - ${SECRETS_DIR:-./secrets}:/run/secrets:ro
+      - ${SECRETS_DIR:-.}:/run/secrets:ro
+    networks:
+      - frontend
+      - db
+
+  web:
+    image: ${PEOPLE_SEARCH_IMAGE:-536333801959.dkr.ecr.us-east-1.amazonaws.com/people-search}:${PEOPLE_SEARCH_TAG:-latest}
+    ports:
+      - 9080:8080
+      - 9443:8443
+    volumes:
+      - ${SECRETS_DIR:-.}:/run/secrets:ro
     networks:
       - frontend
       - db
