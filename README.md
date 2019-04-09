@@ -100,21 +100,31 @@ run the following command:
 
     docker-compose up
 
-This will run the services in the foreground. To stop foreground containers, you can hit *CONTROL-C*.
+This will run the services in the foreground. Log messages will go to standard output. To stop
+foreground containers, you can hit *CONTROL-C*.
+
 To run the services in the background, the this instead:
 
     docker-compose up -d
-    
-To bring the containers down, run
 
-    docker-compose down
+In this case, log messages will be redirected; to display then, run
 
-If the needed images are not cached locally, they will be pulled from AWS ECR. If you
-you see messages like the following:
+    docker-compose logs
+
+If you see messages like the following when you try to bring the services up:
 
     ERROR: pull access denied for people-db, repository does not exist or may require 'docker login'
     
 then you will need to run `docker login`. See the `AWS ECR` section above for details.
+        
+To bring the containers down, run
+
+    docker-compose down
 
 
+#### Connecting to the web application
+
+To connect to the web application, point your browser at
+
+    https://localhost:9443
 

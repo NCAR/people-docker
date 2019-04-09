@@ -58,7 +58,7 @@ if [ ! -f $HOME/.aws/credentials ] ; then
         fi
     done
 fi
-
+set -v
 if [ -f ./.env ] ; then
     . ./.env
     vars=`sed -n -e 's/^\([A-Za-z_][A-Za-z_0-9]*\)=.*/\1/p' ./.env`

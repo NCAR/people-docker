@@ -21,7 +21,8 @@ elif [ -f ./configvars.env ] ; then
     while read line ; do
         var=`expr "${line}" : ' *\([a-zA-Z][a-zA-Z0-9_]*\)=.*'`
         if [ ":${var}" != ":" ] ; then
-            envvars="${envvars} ${var}"
+            envvars="${envvars}
+${var}"
             val=`expr "${line}" : '[^=]*=\(.*\)'`
             escval=`echo "${val}" | sed -e "s/'/'\\\\\\''/g"`
             echo "${var}='${escval}'"
@@ -30,7 +31,7 @@ elif [ -f ./configvars.env ] ; then
 
     # Build a regex that will filter out anything but known variable
     # definitions from the files in $SECRETS_DIR
-    var_regex=`echo "${envvars}" | sed -e 's/.*/(&)/' | tr '\n' '|' | sed -e 's/\(.*\)\|$/^ *(\1)=.*/'`
+    var_regex=`echo "${envvars}" | sed -e '/^ *$/d' -e 's/.*/(&)/' | tr '\n' '|' | sed -e 's/\(.*\)\|$/^ *(\1)=.*/'`
 
     for rcfile in ${SECRETS_DIR}/.env ${SECRETS_DIR}/*.env ; do
         if [ -f "${rcfile}" ] ; then

@@ -18,6 +18,7 @@ case $1 in
         exit 1 ;;
 esac
 
+rm -rf /tmp/envvars_cache.rc
 . ${CATALINA_HOME}/load-configvars.rc
 
 read mysqluser </mysql_user.txt
