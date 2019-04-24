@@ -33,7 +33,7 @@ ${var}"
     # definitions from the files in $SECRETS_DIR
     var_regex=`echo "${envvars}" | sed -e '/^ *$/d' -e 's/.*/(&)/' | tr '\n' '|' | sed -e 's/\(.*\)\|$/^ *(\1)=.*/'`
 
-    for rcfile in ${SECRETS_DIR}/.env ${SECRETS_DIR}/*.env ; do
+    for rcfile in ${SECRETS_DIR}/*.env ${SECRETS_DIR}/.env ; do
         if [ -f "${rcfile}" ] ; then
             echo "# ${rcfile}:"
             egrep "$var_regex" "${rcfile}" \

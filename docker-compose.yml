@@ -13,8 +13,8 @@ services:
       - 3306
     volumes:
       - ${SECRETS_DIR:-.}:/run/secrets:ro
-    networks:
-      - db
+#    networks:
+#      - db
 
   sync:
     image: ${PEOPLE_SYNC_IMAGE:-536333801959.dkr.ecr.us-east-1.amazonaws.com/people-sync}:${PEOPLE_SYNC_TAG:-latest}
@@ -23,9 +23,9 @@ services:
       - 9444:8443
     volumes:
       - ${SECRETS_DIR:-.}:/run/secrets:ro
-    networks:
-      - frontend
-      - db
+#    networks:
+#      - frontend
+#      - db
 
   web:
     image: ${PEOPLE_SEARCH_IMAGE:-536333801959.dkr.ecr.us-east-1.amazonaws.com/people-search}:${PEOPLE_SEARCH_TAG:-latest}
@@ -34,14 +34,14 @@ services:
       - 9443:8443
     volumes:
       - ${SECRETS_DIR:-.}:/run/secrets:ro
-    networks:
-      - frontend
-      - db
+#    networks:
+#      - frontend
+#      - db
 
-networks:
-  frontend:
-    driver: bridge
-  db:
-    driver: bridge
+#networks:
+#  frontend:
+#    driver: bridge
+#  db:
+#    driver: bridge
 
       

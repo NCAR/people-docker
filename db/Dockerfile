@@ -19,7 +19,7 @@ LABEL dump_server_version=${DUMP_SERVER_VERSION}
 COPY entrypoint.sh /usr/local/bin/
 COPY mysql.sh healthcheck.sh /usr/local/bin/
 COPY mysqld-init.sh /usr/local/bin/
-COPY configvars.env /
+COPY configvars.env load-configvars.rc /
 
 COPY PEOPLEDB.sql docker-entrypoint-initdb.d/
 

@@ -83,7 +83,7 @@ directory as the `docker-compose.yml` file.
 #### Secrets and Deployment-Environment-Specific Configuration Parameters
 
 `people-db`, `people-sync`, and `people-search` docker containers all load variable
-definitions from `.env` and `*.env` files in `/run/secrets`. (Refer to the `load-configvars.rc`
+definitions from `*.env` and `.env` files in `/run/secrets`. (Refer to the `load-configvars.rc`
 scripts in the application GitHub repos for details.) Because the default directory to
 bind-mount as `/run/secrets` is "`.`", by default all containers will load the variables
 from `compose.env` and `.env`. The `compose.env` file contains defaults that make sense

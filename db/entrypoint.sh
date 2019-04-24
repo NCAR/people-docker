@@ -19,7 +19,7 @@ case $1 in
 esac
 
 rm -rf /tmp/envvars_cache.rc
-. ${CATALINA_HOME}/load-configvars.rc
+. /load-configvars.rc
 
 read mysqluser </mysql_user.txt
 echo "${PDB_PASSWORD}" | sha256sum >/tmp/mysql_password.sha256
