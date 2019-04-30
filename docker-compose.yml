@@ -13,35 +13,22 @@ services:
       - 3306
     volumes:
       - ${SECRETS_DIR:-.}:/run/secrets:ro
-#    networks:
-#      - db
 
   sync:
     image: ${PEOPLE_SYNC_IMAGE:-536333801959.dkr.ecr.us-east-1.amazonaws.com/people-sync}:${PEOPLE_SYNC_TAG:-latest}
     ports:
-      - 9081:8080
-      - 9444:8443
+      - ${PDBSYNC_HTTP_PORT}:8080
+      - ${PDBSYNC_HTTPS_PORT}:8443
     volumes:
       - ${SECRETS_DIR:-.}:/run/secrets:ro
-#    networks:
-#      - frontend
-#      - db
 
   web:
     image: ${PEOPLE_SEARCH_IMAGE:-536333801959.dkr.ecr.us-east-1.amazonaws.com/people-search}:${PEOPLE_SEARCH_TAG:-latest}
     ports:
-      - 9080:8080
-      - 9443:8443
+      - ${PEOPLE_HTTP_PORT}:8080
+      - ${PEOPLE_HTTPS_PORT}:8443
     volumes:
       - ${SECRETS_DIR:-.}:/run/secrets:ro
-#    networks:
-#      - frontend
-#      - db
 
-#networks:
-#  frontend:
-#    driver: bridge
-#  db:
-#    driver: bridge
 
       
